@@ -75,7 +75,7 @@ func (list *MyLinkedList2[E]) RemoveFirst() (E, error) {
 	return first.val, nil
 }
 
-// removeLast 移除尾部元素
+// RemoveLast removeLast 移除尾部元素
 func (list *MyLinkedList2[E]) RemoveLast() (E, error) {
 	if list.IsEmpty() {
 		return *new(E), errors.New("no elements to remove")
@@ -92,7 +92,7 @@ func (list *MyLinkedList2[E]) RemoveLast() (E, error) {
 	return val, nil
 }
 
-// remove 在指定索引处移除元素
+// Remove remove 在指定索引处移除元素
 func (list *MyLinkedList2[E]) Remove(index int) (E, error) {
 	if index < 0 || index >= list.size_ {
 		return *new(E), errors.New("index out of bounds")
