@@ -13,7 +13,7 @@ type MyArrayList struct {
 	size int
 }
 
-// 初始化容量
+// INIT_CAP 初始化容量
 const INIT_CAP = 1
 
 // NewMyArrayList 初始化数组列表
