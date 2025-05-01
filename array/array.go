@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// MyArrayList 创建自定义数组列表
 type MyArrayList struct {
 	// 真正存储数据的底层数组
 	data []interface{}
@@ -12,50 +13,51 @@ type MyArrayList struct {
 	size int
 }
 
-// 设置初始容量
+// 初始化容量
 const INIT_CAP = 1
 
-// 创建一个数组链表
+// NewMyArrayList 初始化数组列表
 func NewMyArrayList() *MyArrayList {
-	// 设置初始化数组的容量
-	return NewMyArrayListWithCapacity(INIT_CAP)
+	// return NewMyArrayList(INIT_CAP)
+	// 返回一个带有容量大小的数组列表
+	return NewArrayListWithCapacity(INIT_CAP)
 }
 
-// 创建一个带有容量的数组链表
-func NewMyArrayListWithCapacity(initCapacity int) *MyArrayList {
+// NewArrayListWithCapacity 带有容量大小的数组列表
+func NewArrayListWithCapacity(initCapacity int) *MyArrayList {
+	// 返回自定义数组列表
 	return &MyArrayList{
 		data: make([]interface{}, initCapacity),
 		size: 0,
 	}
 }
 
-// 增
+// AddLast 增
 func (list *MyArrayList) AddLast(value interface{}) {
-	// 计算列表的容量
 	cap := len(list.data)
-	// 大小和数组的容量相等
+	// 看 data 数组容量够不够
 	if list.size == cap {
-		// 扩容
 		list.resize(2 * cap)
 	}
-	// 在尾部插入数据
+	// 在尾部插入元素
 	list.data[list.size] = value
-	// 增加列表的大小
 	list.size++
 }
 
+// Add 插入新的元素
 func (list *MyArrayList) Add(index int, value interface{}) error {
 	// 检查索引是否越界
 	if err := list.checkPositionIndex(index); err != nil {
 		return err
 	}
-	// 计算长度
+
+	// 获取列表的数据
 	cap := len(list.data)
-	// 查看一下空间是否足够
+	// 看 data 数组容量够不够
 	if list.size == cap {
+		// 扩容
 		list.resize(2 * cap)
 	}
-
 	// 搬移数据 data[index..] -> data[index+1..]
 	// 给新元素腾出位置
 	for i := list.size - 1; i >= index; i-- {
@@ -63,86 +65,81 @@ func (list *MyArrayList) Add(index int, value interface{}) error {
 	}
 	// 插入新元素
 	list.data[index] = value
-
-	// 大小递增
+	// 长度增加
 	list.size++
+
 	return nil
 }
 
-// 头插法
+// AddFirst 插入到首位置
 func (list *MyArrayList) AddFirst(value interface{}) error {
-	// 放到第一个元素当中
+	// 插入第 0 哥元素
 	return list.Add(0, value)
+
 }
 
-// 删
+// RemoveLast 删除最后一个元素
 func (list *MyArrayList) RemoveLast() (interface{}, error) {
-	// 删除时候元素的数量不能为0
 	if list.size == 0 {
-		return nil, errors.New("No such element")
+		return nil, errors.New("no such element")
 	}
-	// 列表数据元素的长度
+	// 获取容量
 	cap := len(list.data)
-
+	// 可以进行缩容，节约空间
 	if list.size == cap/4 {
-		// 可以进行缩容，节约空间
 		list.resize(cap / 2)
 	}
-
+	// 删除元素的值
 	deletedVal := list.data[list.size-1]
 	// 删除最后一个元素
-	// 必须给最后一个元素置为 nil，否则就会内存泄露
+	// 必须给最后一个元素置为 nil，否则会内存泄露
 	list.data[list.size-1] = nil
+	// 定义长度
 	list.size--
 
 	return deletedVal, nil
 }
 
-// 移除元素
+// Remove 删除元素
 func (list *MyArrayList) Remove(index int) (interface{}, error) {
 	// 检查索引越界
 	if err := list.checkElementIndex(index); err != nil {
 		return nil, err
 	}
-	// 计算长度
+	// 获取列表容量
 	cap := len(list.data)
-	// 进行缩容
+	// 可以缩容，节约空间
 	if list.size == cap/4 {
 		list.resize(cap / 2)
 	}
-
-	// 确定索引的位置，判断删除的值
 	deletedVal := list.data[index]
 
 	// 搬移数据 data[index+1..] -> data[index..]
 	for i := index + 1; i < list.size; i++ {
 		list.data[i-1] = list.data[i]
 	}
-	// 将最后的元素置为 nil
-	// 避免内存的泄漏
+
 	list.data[list.size-1] = nil
 	list.size--
 
 	return deletedVal, nil
 }
 
-// 删除头位置元素
+// RemoveFirst 删除首个元素
 func (list *MyArrayList) RemoveFirst() (interface{}, error) {
-	// 移除索引为0的元素
 	return list.Remove(0)
 }
 
-// 查
+// Get 查
 func (list *MyArrayList) Get(index int) (interface{}, error) {
-	// 检查索引越界
+	// 检查索引是否越界
 	if err := list.checkElementIndex(index); err != nil {
 		return nil, err
 	}
-	// 返回要查询的数值的位置
 	return list.data[index], nil
 }
 
-// 改
+// Set 改
 func (list *MyArrayList) Set(index int, value interface{}) (interface{}, error) {
 	// 检查索引越界
 	if err := list.checkElementIndex(index); err != nil {
@@ -154,32 +151,36 @@ func (list *MyArrayList) Set(index int, value interface{}) (interface{}, error) 
 	return oldVal, nil
 }
 
-// 工具方法
+/**
+工具方法
+*/
+
+// Size 获取数组列表的大小
 func (list *MyArrayList) Size() int {
 	return list.size
 }
 
+// IsEmpty 是否为空
 func (list *MyArrayList) IsEmpty() bool {
 	return list.size == 0
 }
 
 // 将 data 的容量改为 newCap
 func (list *MyArrayList) resize(newCap int) {
-	// 获取初步的长度
 	temp := make([]interface{}, newCap)
 
-	// 将之前的数据遍历到 temp 中
 	for i := 0; i < list.size; i++ {
 		temp[i] = list.data[i]
 	}
 	list.data = temp
 }
 
+// 判断索引元素是否有效
 func (list *MyArrayList) isElementIndex(index int) bool {
 	return index >= 0 && index < list.size
-
 }
 
+// 判断索引的位置是否是合理的
 func (list *MyArrayList) isPositionIndex(index int) bool {
 	return index >= 0 && index <= list.size
 }
@@ -187,30 +188,29 @@ func (list *MyArrayList) isPositionIndex(index int) bool {
 // 检查 index 索引位置是否可以存在元素
 func (list *MyArrayList) checkElementIndex(index int) error {
 	if !list.isElementIndex(index) {
-		return fmt.Errorf("Index: %d, Size: %d", index, list.size)
+		return fmt.Errorf("index: %d, Size: %d", index, list.size)
 	}
 	return nil
 }
 
-// 检查 index 索引位置是否可以添加元素
+// 检查 index 索引位置是否可以添加新的元素
 func (list *MyArrayList) checkPositionIndex(index int) error {
 	if !list.isPositionIndex(index) {
-		return fmt.Errorf("Index: %d, Size: %d", index, list.size)
+		return fmt.Errorf("index: %d, Size: %d", index, list.size)
 	}
 	return nil
 }
 
+// Display 打印展示数组列表的数据容量和长度
 func (list *MyArrayList) Display() {
 	fmt.Printf("size = %d cap = %d\n", list.size, len(list.data))
 	fmt.Println(list.data)
 }
 
 func main() {
-	// 初始容量设为 3
-	arr := NewMyArrayListWithCapacity(3)
+	arr := NewArrayListWithCapacity(3)
 
-	// 添加 5 个元素
-	for i := 1; i <= 5; i++ {
+	for i := 1; i < 5; i++ {
 		arr.AddLast(i)
 	}
 
